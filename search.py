@@ -132,20 +132,19 @@ def breadthFirstSearch(problem: SearchProblem):
     if problem.isGoalState(start_state):        # If the goal is the starting state
         return path                             # Return []
     
-    queue.push((start_state, path))              # Push to queue start state and path=[]
+    queue.push((start_state, path))             # Push to queue start state and path=[]
 
     while(queue.isEmpty() != True):             # While queue is not empty
         
         position, path = queue.pop()            # Get position and path from queue
 
-        explored.append(position)               # Check position as explored, appending it to explored list
+        explored.append(position)               # Check position as explored, append it to explored list
 
         if problem.isGoalState(position):       # If position is the goal, return path
             return path
         
         child = problem.getSuccessors(position) # Get child, (succesor, action, stepCost)
 
-        #if child:                               # If there is a child, for each one, check if it has not been explored yet and push the new path in queue
         queue_state = [state[0] for state in queue.list]
         for node in child:
             if node[0] not in explored and node[0] not in queue_state:
@@ -157,7 +156,34 @@ def breadthFirstSearch(problem: SearchProblem):
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
+    
+    priority_queue = util.PriorityQueue()
+    explored = []
+    path = []
+
+    start_state = problem.getStartState()                                       # Starting State
+
+    if problem.isGoalState(start_state):                                        # If the goal is the starting state
+        return path                                                             # Return []
+    
+    priority_queue.push((start_state, [], 0), 0)                                # Push to priority queue (starting state/position, path, cost), newCost/priority
+
+    while (priority_queue.isEmpty != True):                                     # While priority queue is not empty
+        position, path, cost = priority_queue.pop()                             # Get position, path and cost from priority queue
+
+        if position not in explored:                                            # If the position has no been explored yet
+            explored.append(position)                                           # Append it to explored list
+
+            if problem.isGoalState(position):                                   # If position is the goal, return path
+                return path
+            
+            child = problem.getSuccessors(position)                             # Get child, (succesor, action, stepCost)
+            for node in child:
+                newPath = path + [node[1]]                                      # node[1] is the path of successor
+                newCost = cost + node[2]                                        # node[2] is the cost of successor
+                priority_queue.push((node[0], newPath, newCost), newCost)       # node[0] is the position of successor
+
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
