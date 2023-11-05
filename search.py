@@ -195,7 +195,35 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
+    
+    priority_queue = util.PriorityQueue()
+    explored = []
+    path = []
+
+    start_state = problem.getStartState()                                       # Starting State
+
+    if problem.isGoalState(start_state):                                        # If the goal is the starting state
+        return path                                                             # Return []
+    
+    priority_queue.push((start_state, [], 0), 0)                                # Push to priority queue (starting state/position, path, cost), newCost/priority
+
+    while (priority_queue.isEmpty != True):                                     # While priority queue is not empty
+        position, path, cost = priority_queue.pop()                             # Get position, path and cost from priority queue
+
+        if position not in explored:                                            # If the position has no been explored yet
+            explored.append(position)                                           # Append it to explored list
+
+            if problem.isGoalState(position):                                   # If position is the goal, return path
+                return path
+            
+            child = problem.getSuccessors(position)                             # Get child, (succesor, action, stepCost)
+            for node in child:
+                newPath = path + [node[1]]                                      # node[1] is the path of successor
+                newCost = cost + node[2]                                        # node[2] is the cost of successor
+                h = newCost + heuristic(node[0], problem)
+                priority_queue.push((node[0], newPath, newCost), h)             # node[0] is the position of successor
+
+
     util.raiseNotDefined()
 
 
