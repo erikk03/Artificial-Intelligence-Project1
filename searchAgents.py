@@ -295,8 +295,7 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        #visited_corners = [ False for c in self.corners]
-        return (self.startingPosition, [] ) #tuple(visited_corners)
+        return (self.startingPosition, [] )  # Starting state
         
         util.raiseNotDefined()
 
@@ -308,16 +307,12 @@ class CornersProblem(search.SearchProblem):
         position = state[0]
         visited_corners = state[1]
 
-        if position in self.corners and position not in visited_corners:
+        if ((position in self.corners) and (position not in visited_corners)):          # If position has not been visited yet and is in a corner, check corner as visited
             visited_corners.append(position)
-        elif(position in self.corners):
-            return len(visited_corners) == 4
+        elif(position in self.corners):                                                 # If position is in a corner (but has been already visited)
+            return len(visited_corners) == 4                                            # Return True if all corners (4) have been visited
         
-        return False
-        
-        #if False in state[1]:
-        #    return False
-        #return True
+        return False                                                                    # Else return False because not all corners have been visited
     
         util.raiseNotDefined()
 
@@ -334,6 +329,7 @@ class CornersProblem(search.SearchProblem):
         
         visited_corners = state[1]
         successors = []
+
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -343,15 +339,15 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
 
-            if (hitsWall != True):
-                successor_visited_corner = list(visited_corners)
-                next_position = (nextx, nexty)
+            if (hitsWall != True):                                                                  # If hitsWall False
+                successor_visited_corner = list(visited_corners)                                    # visited corners of successor are a list of visited corners (state[1])
+                next_position = (nextx, nexty)                                                      # next_position as it's given
 
-                if next_position in self.corners and next_position not in successor_visited_corner:
-                    successor_visited_corner.append(next_position)
+                if ((next_position in self.corners) and (next_position not in successor_visited_corner)):   # If next position in a corner, but not visited yet
+                    successor_visited_corner.append(next_position)                                          # Check corner as visited
 
-                successor = ((next_position, successor_visited_corner), action, 1)
-                successors.append(successor)
+                successor = ((next_position, successor_visited_corner), action, 1)                          # Successor of the next step/position, cost = 1
+                successors.append(successor)                                                                # Append in successors list
             
 
         self._expanded += 1 # DO NOT CHANGE
@@ -390,24 +386,22 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     if problem.isGoalState(state):
         return 0
     
+    position = state[0]
     visited_corners = state[1]
     remaining_corners = []
-
-    for corner in corners:
-        if corner not in visited_corners:
-            remaining_corners.append(corner)
-    
     cost = 0
-    position = state[0]
 
-    while remaining_corners:
-        
-        cost2, corner = min([(util.manhattanDistance(position, corner), corner) for corner in remaining_corners])
-        remaining_corners.remove(corner)
-        position = corner
+    for i in corners:                       # If corner i has not been visited yet, mark it as remaining corner to be visited
+        if i not in visited_corners:
+            remaining_corners.append(i)
+
+    while remaining_corners:                # As long as there are corners to be visited:
+        cost2, corner = min([(util.manhattanDistance(position, corner), corner) for corner in remaining_corners])   # Use manhattanDistance to find distance from state to corner, take the minimun from all
+        remaining_corners.remove(corner)    # One less corner remaining to be explored
+        position = corner                   # Now that we reach a corner, new position is current corner
         cost = cost + cost2
         
-    return cost
+    return cost                             # Returns the total cost
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -505,21 +499,23 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         return 0
     
     food = foodGrid.asList()
-    max_distance = 0
+    maximum_distance = 0
 
-    first = food[0]
-    second = food [0]
+    # Init two dots as the first one
+    first_dot = food[0]
+    second_dot = food [0]
 
     for i in range(len(food)):
         for j in range(i+1, len(food)):
-            distance = util.manhattanDistance(food[i], food[j])
+            distance = util.manhattanDistance(food[i], food[j])           # Distance between two dots\foods
 
-            if (distance > max_distance):
-                max_distance = distance
-                first = food[i]
-                second = food[j]
+            if (distance > maximum_distance):                             # Find biggest distance
+                maximum_distance = distance
+                first_dot = food[i]
+                second_dot = food[j]
 
-    a = max_distance + min((util.manhattanDistance(position, first), util.manhattanDistance(position, second)))
+    # Use manhattan to find distance between position and first an second dot, take the shortest and sum it with biggest distance we found previously
+    a = maximum_distance + min((util.manhattanDistance(position, first_dot), util.manhattanDistance(position, second_dot))) 
 
     return a
 
@@ -586,18 +582,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
-        "*** YOUR CODE HERE ***"
-        #distance, goal = min([(util.manhattanDistance(state, goal), goal) for goal in self.food.asList()])
-        #if state == goal:
-        #    return True
-        #else:
-        #    return False
-        
-        #return self.food[x][y]
         
         food = self.food.asList()
-        if state in food:
+
+        if state in food:           # If position/state is in list food, return True, else return False
             return True
         return False
         

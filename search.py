@@ -90,7 +90,7 @@ def depthFirstSearch(problem: SearchProblem):
     """
 
 
-    stack = util.Stack()                        # Position, Path
+    frontier = util.Stack()                     # Position, Path
     explored = []
     path = []
 
@@ -99,11 +99,11 @@ def depthFirstSearch(problem: SearchProblem):
     if problem.isGoalState(start_state):        # If the goal is the starting state
         return path                             # Return []
     
-    stack.push((start_state, path))              # Push to stack start state and path=[]
+    frontier.push((start_state, path))          # Push to frontier start state and path=[]
 
-    while(stack.isEmpty() != True):             # While stack is not empty
+    while(frontier.isEmpty() != True):          # While frontier is not empty
         
-        position,path = stack.pop()             # Get position and path from stack
+        position,path = frontier.pop()          # Get position and path from frontier
 
         explored.append(position)               # Check position as explored, appending it to explored list
 
@@ -112,18 +112,17 @@ def depthFirstSearch(problem: SearchProblem):
         
         child = problem.getSuccessors(position) # Get child, (succesor, action, stepCost)
 
-        #if child:                               # If there is a child, for each one, check if it hasnt been explored yet and push the new path in stack
-        for node in child:
+        for node in child:                      # If there is a child, for each one, check if it hasnt been explored yet and push the new path in frontier
             if node[0] not in explored:
                 newPath = path + [node[1]]
-                stack.push((node[0], newPath))
+                frontier.push((node[0], newPath))
 
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
 
-    queue = util.Queue()                        # Position, Path
+    frontier = util.Queue()                  # Position, Path
     explored = []
     path = []
 
@@ -132,11 +131,11 @@ def breadthFirstSearch(problem: SearchProblem):
     if problem.isGoalState(start_state):        # If the goal is the starting state
         return path                             # Return []
     
-    queue.push((start_state, path))             # Push to queue start state and path=[]
+    frontier.push((start_state, path))          # Push to frontier start state and path=[]
 
-    while(queue.isEmpty() != True):             # While queue is not empty
+    while(frontier.isEmpty() != True):          # While frontier is not empty
         
-        position, path = queue.pop()            # Get position and path from queue
+        position, path = frontier.pop()         # Get position and path from frontier
 
         explored.append(position)               # Check position as explored, append it to explored list
 
@@ -145,11 +144,11 @@ def breadthFirstSearch(problem: SearchProblem):
         
         child = problem.getSuccessors(position) # Get child, (succesor, action, stepCost)
 
-        queue_state = [state[0] for state in queue.list]
-        for node in child:
-            if node[0] not in explored and node[0] not in queue_state:
+        frontier_state = [state[0] for state in frontier.list]
+        for node in child:                      # If there is a child, for each one, check if it hasnt been explored yet and push the new path in frontier
+            if node[0] not in explored and node[0] not in frontier_state:
                 newPath = path + [node[1]]
-                queue.push((node[0], newPath))
+                frontier.push((node[0], newPath))
 
 
     util.raiseNotDefined()
@@ -157,31 +156,31 @@ def breadthFirstSearch(problem: SearchProblem):
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     
-    priority_queue = util.PriorityQueue()
+    frontier = util.PriorityQueue()
     explored = []
     path = []
 
-    start_state = problem.getStartState()                                       # Starting State
+    start_state = problem.getStartState()                         # Starting State
 
-    if problem.isGoalState(start_state):                                        # If the goal is the starting state
-        return path                                                             # Return []
+    if problem.isGoalState(start_state):                          # If the goal is the starting state
+        return path                                               # Return []
     
-    priority_queue.push((start_state, [], 0), 0)                                # Push to priority queue (starting state/position, path, cost), newCost/priority
+    frontier.push((start_state, [], 0), 0)                        # Push to frontier (starting state/position, path, cost), newCost/priority
 
-    while (priority_queue.isEmpty != True):                                     # While priority queue is not empty
-        position, path, cost = priority_queue.pop()                             # Get position, path and cost from priority queue
+    while (frontier.isEmpty != True):                             # While frontier is not empty
+        position, path, cost = frontier.pop()                     # Get position, path and cost from frontier
 
-        if position not in explored:                                            # If the position has no been explored yet
-            explored.append(position)                                           # Append it to explored list
+        if position not in explored:                              # If the position has no been explored yet
+            explored.append(position)                             # Append it to explored list
 
-            if problem.isGoalState(position):                                   # If position is the goal, return path
+            if problem.isGoalState(position):                     # If position is the goal, return path
                 return path
             
-            child = problem.getSuccessors(position)                             # Get child, (succesor, action, stepCost)
+            child = problem.getSuccessors(position)               # Get child, (succesor, action, stepCost)
             for node in child:
-                newPath = path + [node[1]]                                      # node[1] is the path of successor
-                newCost = cost + node[2]                                        # node[2] is the cost of successor
-                priority_queue.push((node[0], newPath, newCost), newCost)       # node[0] is the position of successor
+                newPath = path + [node[1]]                        # node[1] is the path of successor
+                newCost = cost + node[2]                          # node[2] is the cost of successor
+                frontier.push((node[0], newPath, newCost), newCost)       # node[0] is the position of successor
 
 
     util.raiseNotDefined()
@@ -196,32 +195,32 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     
-    priority_queue = util.PriorityQueue()
+    frontier = util.PriorityQueue()
     explored = []
     path = []
 
-    start_state = problem.getStartState()                                       # Starting State
+    start_state = problem.getStartState()                               # Starting State
 
-    if problem.isGoalState(start_state):                                        # If the goal is the starting state
-        return path                                                             # Return []
+    if problem.isGoalState(start_state):                                # If the goal is the starting state
+        return path                                                     # Return []
     
-    priority_queue.push((start_state, [], 0), 0)                                # Push to priority queue (starting state/position, path, cost), newCost/priority
+    frontier.push((start_state, [], 0), 0)                              # Push to frontier (starting state/position, path, cost), newCost/priority
 
-    while (priority_queue.isEmpty != True):                                     # While priority queue is not empty
-        position, path, cost = priority_queue.pop()                             # Get position, path and cost from priority queue
+    while (frontier.isEmpty != True):                                   # While frontier is not empty
+        position, path, cost = frontier.pop()                           # Get position, path and cost from frontier
 
-        if position not in explored:                                            # If the position has no been explored yet
-            explored.append(position)                                           # Append it to explored list
+        if position not in explored:                                    # If position has no been explored yet
+            explored.append(position)                                   # Append it to explored list
 
-            if problem.isGoalState(position):                                   # If position is the goal, return path
+            if problem.isGoalState(position):                           # If position is the goal, return path
                 return path
             
-            child = problem.getSuccessors(position)                             # Get child, (succesor, action, stepCost)
+            child = problem.getSuccessors(position)                     # Get child, (succesor, action, stepCost)
             for node in child:
-                newPath = path + [node[1]]                                      # node[1] is the path of successor
-                newCost = cost + node[2]                                        # node[2] is the cost of successor
+                newPath = path + [node[1]]                              # node[1] is the path of successor
+                newCost = cost + node[2]                                # node[2] is the cost of successor
                 h = newCost + heuristic(node[0], problem)
-                priority_queue.push((node[0], newPath, newCost), h)             # node[0] is the position of successor
+                frontier.push((node[0], newPath, newCost), h)           # node[0] is the position of successor
 
 
     util.raiseNotDefined()
